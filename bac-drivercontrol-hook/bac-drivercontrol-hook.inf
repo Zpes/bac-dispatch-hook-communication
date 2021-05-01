@@ -1,0 +1,87 @@
+;
+; bac-drivercontrol-hook.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=Sample ; TODO: edit Class
+ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=bac-drivercontrol-hook.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockDown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+bac-drivercontrol-hook_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=SampleClassReg
+
+[SampleClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+bac-drivercontrol-hook.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%bac-drivercontrol-hook.DeviceDesc%=bac-drivercontrol-hook_Device, Root\bac-drivercontrol-hook ; TODO: edit hw-id
+
+[bac-drivercontrol-hook_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+bac-drivercontrol-hook.sys
+
+;-------------- Service installation
+[bac-drivercontrol-hook_Device.NT.Services]
+AddService = bac-drivercontrol-hook,%SPSVCINST_ASSOCSERVICE%, bac-drivercontrol-hook_Service_Inst
+
+; -------------- bac-drivercontrol-hook driver install sections
+[bac-drivercontrol-hook_Service_Inst]
+DisplayName    = %bac-drivercontrol-hook.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\bac-drivercontrol-hook.sys
+
+;
+;--- bac-drivercontrol-hook_Device Coinstaller installation ------
+;
+
+[bac-drivercontrol-hook_Device.NT.CoInstallers]
+AddReg=bac-drivercontrol-hook_Device_CoInstaller_AddReg
+CopyFiles=bac-drivercontrol-hook_Device_CoInstaller_CopyFiles
+
+[bac-drivercontrol-hook_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[bac-drivercontrol-hook_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[bac-drivercontrol-hook_Device.NT.Wdf]
+KmdfService =  bac-drivercontrol-hook, bac-drivercontrol-hook_wdfsect
+[bac-drivercontrol-hook_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ClassName="Samples" ; TODO: edit ClassName
+DiskName = "bac-drivercontrol-hook Installation Disk"
+bac-drivercontrol-hook.DeviceDesc = "bac-drivercontrol-hook Device"
+bac-drivercontrol-hook.SVCDESC = "bac-drivercontrol-hook Service"

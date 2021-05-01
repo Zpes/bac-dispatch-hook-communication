@@ -1,0 +1,67 @@
+#pragma once
+#include <ntifs.h>
+
+#define IO_RESTORE_ORIGINAL_DRIVERCONTROL CTL_CODE(FILE_DEVICE_UNKNOWN, 0x1010, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+#define IO_READ_VIRTUAL_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN, 0x2020, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+#define IO_WRITE_VIRTUAL_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN, 0x3030, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+
+// my custom structs
+typedef struct _KERNEL_MEMORY_REQUEST {
+	ULONG pid;
+	PVOID source;
+	PVOID buffer;
+	SIZE_T size;
+} KERNEL_MEMORY_REQUEST, * PKERNEL_MEMORY_REQUEST;
+
+// win structs
+typedef struct _SYSTEM_MODULE
+{
+	HANDLE Section;
+	PVOID MappedBase;
+	PVOID ImageBase;
+	ULONG ImageSize;
+	ULONG Flags;
+	USHORT LoadOrderIndex;
+	USHORT InitOrderIndex;
+	USHORT LoadCount;
+	USHORT OffsetToFileName;
+	UCHAR  FullPathName[MAXIMUM_FILENAME_LENGTH];
+} SYSTEM_MODULE, * PSYSTEM_MODULE;
+
+typedef struct _DEVICE_MAP* PDEVICE_MAP;
+
+typedef struct _OBJECT_DIRECTORY_ENTRY
+{
+	_OBJECT_DIRECTORY_ENTRY* ChainLink;
+	PVOID Object;
+	ULONG HashValue;
+} OBJECT_DIRECTORY_ENTRY, * POBJECT_DIRECTORY_ENTRY;
+
+typedef struct _SYSTEM_MODULE_INFORMATION
+{
+	ULONG NumberOfModules;
+	SYSTEM_MODULE Modules[1];
+} SYSTEM_MODULE_INFORMATION, * PSYSTEM_MODULE_INFORMATION;
+
+typedef struct _OBJECT_DIRECTORY
+{
+	POBJECT_DIRECTORY_ENTRY HashBuckets[37];
+	EX_PUSH_LOCK Lock;
+	PDEVICE_MAP DeviceMap;
+	ULONG SessionId;
+	PVOID NamespaceEntry;
+	ULONG Flags;
+} OBJECT_DIRECTORY, * POBJECT_DIRECTORY;
+
+extern "C" NTSTATUS NTAPI MmCopyVirtualMemory
+(
+	PEPROCESS SourceProcess,
+	PVOID SourceAddress,
+	PEPROCESS TargetProcess,
+	PVOID TargetAddress,
+	SIZE_T BufferSize,
+	KPROCESSOR_MODE PreviousMode,
+	PSIZE_T ReturnSize
+);
+
+extern "C" NTSTATUS NTAPI ZwQuerySystemInformation(ULONG SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, ULONG * ReturnLength);
