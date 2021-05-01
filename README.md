@@ -13,4 +13,4 @@ Hooking the BadlionAnticheat dispatch routine to communicate with the usermode.
 * Still cant figure it out? join the discord!
 
 ## Links
-[Discord](https://discord.gg/9XykzWqVMP)
+* [Discord](https://discord.gg/9XykzWqVMP) - GameReversalClub
